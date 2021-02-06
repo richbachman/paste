@@ -3,7 +3,8 @@ name: PR Checks
 on: pull_request
 
 jobs:
-  build_and_types:
+  build_and_upload:
+    name: build_and_upload
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -40,10 +41,26 @@ jobs:
       - name: Build packages
         run: yarn build
 
-      - name: Run type checker
-        run: yarn type-check
+      - name: Archive Alert artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: |
+            packages/paste-core/components/alert/dist
 
-  build_and_eslint:
+      - name: Archive Theme artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: |
+            packages/paste-theme/dist
+
+      # - name: Run tests
+      #   run: yarn test
+
+  test:
+    name: test
+    needs: build_and_upload
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -77,88 +94,186 @@ jobs:
       - name: Install Dependencies
         run: yarn install --frozen-lockfile && yarn bootstrap
 
-      - name: Build packages
-        run: yarn build
+      # - name: Build packages
+      #   run: yarn build
 
-      - name: Run eslint
-        run: yarn lint
-
-  build_and_tests:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v2
-
-      - name: Setup Node.js 12.x
-        uses: actions/setup-node@v2
+      - name: Download Alert Artifacts
+        uses: actions/download-artifact@v2
         with:
-          node-version: 12.x
+          name: dist
+          path: packages/paste-core/components/alert/dist/
 
-      - name: Get yarn cache
-        id: yarn-cache
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-
-      - uses: actions/cache@v2
-        name: Load Yarn cache
+      - name: Download Theme Artifacts
+        uses: actions/download-artifact@v2
         with:
-          path: ${{ steps.yarn-cache.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn
+          name: dist
+          path: packages/paste-theme/dist/
 
-      - name: restore lerna
-        uses: actions/cache@v2
-        with:
-          path: |
-            node_modules
-            */*/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+      - name: Display structure of downloaded alert files
+        run: ls -R packages/paste-core/components/alert
 
-      - name: Install Dependencies
-        run: yarn install --frozen-lockfile && yarn bootstrap
-
-      - name: Build packages
-        run: yarn build
+      - name: Display structure of downloaded theme files
+        run: ls -R packages/paste-theme
 
       - name: Run tests
         run: yarn test
 
-  build_and_prettier:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v2
+  # build_and_types:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Repo
+  #       uses: actions/checkout@v2
 
-      - name: Setup Node.js 12.x
-        uses: actions/setup-node@v2
-        with:
-          node-version: 12.x
+  #     - name: Setup Node.js 12.x
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version: 12.x
 
-      - name: Get yarn cache
-        id: yarn-cache
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+  #     - name: Get yarn cache
+  #       id: yarn-cache
+  #       run: echo "::set-output name=dir::$(yarn cache dir)"
 
-      - uses: actions/cache@v2
-        name: Load Yarn cache
-        with:
-          path: ${{ steps.yarn-cache.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn
+  #     - uses: actions/cache@v2
+  #       name: Load Yarn cache
+  #       with:
+  #         path: ${{ steps.yarn-cache.outputs.dir }}
+  #         key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-yarn
 
-      - name: restore lerna
-        uses: actions/cache@v2
-        with:
-          path: |
-            node_modules
-            */*/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+  #     - name: restore lerna
+  #       uses: actions/cache@v2
+  #       with:
+  #         path: |
+  #           node_modules
+  #           */*/node_modules
+  #         key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
 
-      - name: Install Dependencies
-        run: yarn install --frozen-lockfile && yarn bootstrap
+  #     - name: Install Dependencies
+  #       run: yarn install --frozen-lockfile && yarn bootstrap
 
-      - name: Build packages
-        run: yarn build
+  #     - name: Build packages
+  #       run: yarn build
 
-      - name: Run prettier
-        run: yarn prettier
+  #     - name: Run type checker
+  #       run: yarn type-check
+
+  # build_and_eslint:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Repo
+  #       uses: actions/checkout@v2
+
+  #     - name: Setup Node.js 12.x
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version: 12.x
+
+  #     - name: Get yarn cache
+  #       id: yarn-cache
+  #       run: echo "::set-output name=dir::$(yarn cache dir)"
+
+  #     - uses: actions/cache@v2
+  #       name: Load Yarn cache
+  #       with:
+  #         path: ${{ steps.yarn-cache.outputs.dir }}
+  #         key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-yarn
+
+  #     - name: restore lerna
+  #       uses: actions/cache@v2
+  #       with:
+  #         path: |
+  #           node_modules
+  #           */*/node_modules
+  #         key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+
+  #     - name: Install Dependencies
+  #       run: yarn install --frozen-lockfile && yarn bootstrap
+
+  #     - name: Build packages
+  #       run: yarn build
+
+  #     - name: Run eslint
+  #       run: yarn lint
+
+  # build_and_tests:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Repo
+  #       uses: actions/checkout@v2
+
+  #     - name: Setup Node.js 12.x
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version: 12.x
+
+  #     - name: Get yarn cache
+  #       id: yarn-cache
+  #       run: echo "::set-output name=dir::$(yarn cache dir)"
+
+  #     - uses: actions/cache@v2
+  #       name: Load Yarn cache
+  #       with:
+  #         path: ${{ steps.yarn-cache.outputs.dir }}
+  #         key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-yarn
+
+  #     - name: restore lerna
+  #       uses: actions/cache@v2
+  #       with:
+  #         path: |
+  #           node_modules
+  #           */*/node_modules
+  #         key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+
+  #     - name: Install Dependencies
+  #       run: yarn install --frozen-lockfile && yarn bootstrap
+
+  #     - name: Build packages
+  #       run: yarn build
+
+  #     - name: Run tests
+  #       run: yarn test
+
+  # build_and_prettier:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Repo
+  #       uses: actions/checkout@v2
+
+  #     - name: Setup Node.js 12.x
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version: 12.x
+
+  #     - name: Get yarn cache
+  #       id: yarn-cache
+  #       run: echo "::set-output name=dir::$(yarn cache dir)"
+
+  #     - uses: actions/cache@v2
+  #       name: Load Yarn cache
+  #       with:
+  #         path: ${{ steps.yarn-cache.outputs.dir }}
+  #         key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-yarn
+
+  #     - name: restore lerna
+  #       uses: actions/cache@v2
+  #       with:
+  #         path: |
+  #           node_modules
+  #           */*/node_modules
+  #         key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+
+  #     - name: Install Dependencies
+  #       run: yarn install --frozen-lockfile && yarn bootstrap
+
+  #     - name: Build packages
+  #       run: yarn build
+
+  #     - name: Run prettier
+  #       run: yarn prettier
