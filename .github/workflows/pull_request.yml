@@ -41,12 +41,19 @@ jobs:
       - name: Build packages
         run: yarn build
 
-      - name: Archive build artifacts
+      - name: Archive Alert artifacts
         uses: actions/upload-artifact@v2
         with:
           name: dist
           path: |
             packages/paste-core/components/alert/dist
+
+      - name: Archive Theme artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: |
+            packages/paste-theme/dist
 
       # - name: Run tests
       #   run: yarn test
@@ -90,14 +97,23 @@ jobs:
       # - name: Build packages
       #   run: yarn build
 
-      - name: Download
+      - name: Download Alert Artifacts
         uses: actions/download-artifact@v2
         with:
           name: dist
           path: packages/paste-core/components/alert/dist/
 
-      - name: Display structure of downloaded files
+      - name: Download Theme Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: packages/paste-theme/dist/
+
+      - name: Display structure of downloaded alert files
         run: ls -R packages/paste-core/components/alert
+
+      - name: Display structure of downloaded theme files
+        run: ls -R packages/paste-theme
 
       - name: Run tests
         run: yarn test
