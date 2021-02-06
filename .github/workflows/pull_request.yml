@@ -46,7 +46,7 @@ jobs:
         with:
           name: dist
           path: |
-            packages/paste-core/alert/dist
+            packages/paste-core/components/alert/dist
 
       # - name: Run tests
       #   run: yarn test
@@ -94,7 +94,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: dist
-          path: packages/paste-core/alert/
+          path: packages/paste-core/components/alert/
 
       - name: Display structure of downloaded files
         run: ls -R
