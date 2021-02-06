@@ -111,7 +111,7 @@ jobs:
 
       - name: Display structure of downloaded files
         run: ls -R
-        working-directory: packages
+        working-directory: paste
 
       - name: Run tests
         run: yarn test
