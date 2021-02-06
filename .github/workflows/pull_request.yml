@@ -97,7 +97,7 @@ jobs:
           path: packages/paste-core/components/alert/
 
       - name: Display structure of downloaded files
-        run: ls -R
+        run: ls -R packages/paste-core/components/alert
 
       - name: Run tests
         run: yarn test
