@@ -44,22 +44,9 @@ jobs:
       - name: Archive build artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: packages-dist
+          name: dist
           path: |
-            packages/paste-core/**/dist
-            !packages/paste-core/core-bundle
-            packages/paste-libraries/**/dist
-            packages/design-tokens/dist
-            packages/paste-icons/cjs
-            packages/paste-icons/esm
-            packages/paste-style-props/dist
-            packages/paste-theme/dist
-            packages/paste-types/dist
-            !packages/paste-codemods
-            !packages/paste-cra-template
-            !packages/paste-nextjs-template
-            !packages/paste-theme-designer
-            !packages/paste-website
+            packages/paste-core/alert/dist
 
       # - name: Run tests
       #   run: yarn test
@@ -105,6 +92,9 @@ jobs:
 
       - name: Download
         uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: packages/paste-core/alert/
 
       - name: Display structure of downloaded files
         run: ls -R
